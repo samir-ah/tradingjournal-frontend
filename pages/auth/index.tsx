@@ -2,9 +2,9 @@ import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-import AuthForm from "../components/auth/auth-form";
-function AuthPage() {
-	const [isLoading, setIsLoading] = useState(true);
+import LoginForm from "../../components/auth/login-form";
+function LoginPage() {
+	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -18,11 +18,11 @@ function AuthPage() {
 		setIsLoading(false);
 	}, [router]);
 
-	if (isLoading) {
-		return <p>Loading...</p>;
-	}
+	// if (isLoading) {
+	// 	return null;
+	// }
 
-	return <AuthForm />;
+	return <LoginForm />;
 }
 
-export default AuthPage;
+export default LoginPage;

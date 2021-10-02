@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { array } from "yup/lib/locale";
 
 export const useHttpClient = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
