@@ -1,27 +1,12 @@
-import type { NextPage } from "next";
+import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/auth-context";
+import {ProtectRoute } from "../context/auth-context";
 import styles from "../styles/Home.module.css";
 
+// const Home: NextPage<{ protected: boolean; userRoles: string[] }> = (props) => {
 const Home: NextPage = () => {
-	const [isLoading, setIsLoading] = useState(true);
-	const authCtx = useContext(AuthContext);
-	const router = useRouter();
-
-	useEffect(() => {
-		if (!authCtx.isLoggedIn) {
-			router.replace("/auth");
-		} else {
-			setIsLoading(false);
-		}
-	}, [authCtx.isLoggedIn, router]);
-	console.log(isLoading);
-	if (isLoading) {
-		return <p>loading...</p>;
-	}
+	
 	return (
 		<div className={styles.container}>
 			<Head>
@@ -105,4 +90,12 @@ const Home: NextPage = () => {
 	);
 };
 
-export default Home;
+// export const getStaticProps: GetStaticProps = async (context) => {
+// 	return {
+// 		props: {
+// 			protected: true,
+// 		},
+// 	};
+// };
+
+export default ProtectRoute(Home);

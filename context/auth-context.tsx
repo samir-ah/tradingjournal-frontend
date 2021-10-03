@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import jwtDecode from "jwt-decode";
 import { useRouter } from "next/router";
+import { NextPage } from "next";
+import LoadingPage from "../components/ui/loading-page";
 
-let logoutTimer: NodeJS.Timeout;
+let logoutTimer: number;
 type AuthContextObj = {
 	token: string | null | undefined;
-	jwtPayload: any;
+	user: any;
 	isLoggedIn: boolean;
 	isLoading: boolean;
 	login: (token: string) => void;
 	logout: () => void;
 };
 export const AuthContext = React.createContext<AuthContextObj>({
-	token: "",
-	jwtPayload: {},
+	token: null,
+	user: null,
 	isLoggedIn: false,
 	isLoading: true,
 	login: (token) => {},
@@ -32,15 +34,15 @@ const calculateRemainingTime = (expirationTime: number | null | undefined) => {
 
 const AuthContextProvider: React.FC = (props) => {
 	const [token, setToken] = useState<string | null>();
-	const [jwtPayload, setJwtPayload] = useState<any>();
+	const [user, setUser] = useState<any>();
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const router = useRouter();
 
 	const logoutHandler = useCallback(() => {
 		setToken(null);
-		setJwtPayload(null);
+		setUser(null);
 		window.localStorage.removeItem("token");
-		window.localStorage.removeItem("jwtPayload");
+		window.localStorage.removeItem("user");
 
 		if (logoutTimer) {
 			clearTimeout(logoutTimer);
@@ -50,33 +52,32 @@ const AuthContextProvider: React.FC = (props) => {
 
 	const loginHandler = (token: string) => {
 		setToken(token);
-		const jwtPayload: any = jwtDecode(token);
+		const user: any = jwtDecode(token);
 		window.localStorage.setItem("token", token);
-		window.localStorage.setItem("jwtPayload", JSON.stringify(jwtPayload));
+		window.localStorage.setItem("user", JSON.stringify(user));
 
-		const remainingTime = calculateRemainingTime(jwtPayload.exp);
+		const remainingTime = calculateRemainingTime(user.exp);
 
-		logoutTimer = setTimeout(logoutHandler, remainingTime);
+		logoutTimer = window.setTimeout(logoutHandler, remainingTime);
 	};
 
 	useEffect(() => {
 		const retrieveStoredToken = () => {
-			setIsLoading(true);
-			const storedToken = localStorage.getItem("token");
-			const storedjwtPayload = window.localStorage.getItem("jwtPayload");
+			const storedToken = window.localStorage.getItem("token");
+			const storedUser = window.localStorage.getItem("user");
 			let remainingTime = 0;
-			let jwtPayload: any;
-			if (storedjwtPayload && storedToken) {
-				jwtPayload = JSON.parse(storedjwtPayload);
+			let user: any;
+			if (storedUser && storedToken) {
+				user = JSON.parse(storedUser);
 				setToken(storedToken);
-				setJwtPayload(jwtPayload);
-				const storedExpirationDate = jwtPayload.exp;
+				setUser(user);
+				const storedExpirationDate = user.exp;
 				remainingTime = calculateRemainingTime(storedExpirationDate);
-				logoutTimer = setTimeout(logoutHandler, remainingTime);
+				logoutTimer = window.setTimeout(logoutHandler, remainingTime);
 			}
 			if (remainingTime <= 3600) {
 				window.localStorage.removeItem("token");
-				window.localStorage.removeItem("jwtPayload");
+				window.localStorage.removeItem("user");
 			}
 			setIsLoading(false);
 		};
@@ -85,7 +86,7 @@ const AuthContextProvider: React.FC = (props) => {
 
 	const contextValue: AuthContextObj = {
 		token: token,
-		jwtPayload: jwtPayload,
+		user: user,
 		isLoggedIn: !!token,
 		isLoading: isLoading,
 		login: loginHandler,
@@ -99,12 +100,30 @@ const AuthContextProvider: React.FC = (props) => {
 	);
 };
 
-export const ProtectRoute = ({ children }: { children: React.ReactNode }) => {
-	const { isLoggedIn, isLoading } = useContext(AuthContext);
-	if (isLoading || !isLoggedIn) {
-		return <p>loading...</p>;
-	}
-	return children;
-};
+type ProtectRouteFn = (
+	Component: NextPage<any>,
+	userRoles?: string
+) => React.FC;
+export const ProtectRoute: ProtectRouteFn = (Component, userRoles) => {
+	const Authenticated: NextPage = (pageProps): JSX.Element | null => {
+		const authContext = useContext(AuthContext);
+		const router = useRouter();
+		if (authContext.isLoading) {
+			return <LoadingPage></LoadingPage>;
+		}
+		if (
+			!authContext.isLoggedIn ||
+			(authContext.isLoggedIn &&
+				userRoles &&
+				userRoles.indexOf(authContext.user.roles) === -1)
+		) {
+			router.replace("/auth");
+			return <LoadingPage />;
+		}
 
+		return <Component {...pageProps} />;
+	};
+
+	return Authenticated;
+};
 export default AuthContextProvider;
