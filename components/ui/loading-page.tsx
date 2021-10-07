@@ -1,9 +1,7 @@
-
+import styles from "./loading-page.module.css";
 
 const LoadingPage: React.FC = (props) => {
-	return (
-		<p className="mx-auto">Loading...</p>
-	);
-}
+	return <div className={`${styles.loader}`}>Loading...</div>;
+};
 
 export default LoadingPage;

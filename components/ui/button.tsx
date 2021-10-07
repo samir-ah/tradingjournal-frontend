@@ -1,12 +1,14 @@
 import Link from "next/link";
+import LoadingBtn from "./loading-btn";
 
 type Props = {
 	link?: string;
 	className?: string;
 	onClick?: () => void;
 	children?: React.ReactNode;
+	isLoading?: boolean;
 };
-function Button({ link, className, onClick, children }: Props) {
+function Button({ link, className, onClick, children, isLoading }: Props) {
 	if (link) {
 		return (
 			<Link href={link}>
@@ -18,6 +20,7 @@ function Button({ link, className, onClick, children }: Props) {
 	return (
 		<button className={`btn ${className || ""}`} onClick={onClick}>
 			{children}
+			{isLoading ? <span><LoadingBtn/></span> : ""}	
 		</button>
 	);
 }

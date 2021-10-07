@@ -26,8 +26,8 @@ const calculateRemainingTime = (expirationTime: number | null | undefined) => {
 	if (!expirationTime) {
 		return 0;
 	}
-	const currentTime = new Date().getTime();
-	const adjExpirationTime = new Date(expirationTime).getTime();
+	const currentTime = new Date().getTime() / 1000;
+	const adjExpirationTime = expirationTime;
 	const remainingDuration = adjExpirationTime - currentTime;
 	return remainingDuration;
 };
@@ -51,13 +51,12 @@ const AuthContextProvider: React.FC = (props) => {
 	}, [router]);
 
 	const loginHandler = (token: string) => {
-		setToken(token);
 		const user: any = jwtDecode(token);
+		setToken(token);
+		setUser(user);
 		window.localStorage.setItem("token", token);
 		window.localStorage.setItem("user", JSON.stringify(user));
-
 		const remainingTime = calculateRemainingTime(user.exp);
-
 		logoutTimer = window.setTimeout(logoutHandler, remainingTime);
 	};
 
@@ -110,7 +109,7 @@ export const ProtectRoute: ProtectRouteFn = (Component, userRoles) => {
 		const router = useRouter();
 		if (authContext.isLoading) {
 			return <LoadingPage></LoadingPage>;
-		}
+		}		
 		if (
 			!authContext.isLoggedIn ||
 			(authContext.isLoggedIn &&

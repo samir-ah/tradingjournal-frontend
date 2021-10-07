@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { useForm, SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
@@ -7,6 +7,9 @@ import Button from "../ui/button";
 import ButtonLink from "../ui/button-link";
 import { useRouter } from "next/router";
 import AuthLayout from "../layout/auth-layout";
+import { useHttpClient } from "../../hooks/use-http";
+import { AuthContext } from "../../context/auth-context";
+import { toast } from "react-toastify";
 
 type Inputs = {
 	email: string;
@@ -22,27 +25,10 @@ const schema = yup
 	})
 	.required();
 
-async function login(email: string, password: string) {
-	const response = await fetch("/api/login", {
-		method: "POST",
-		body: JSON.stringify({ email, password }),
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
-
-	const data = await response.json();
-
-	if (!response.ok) {
-		throw new Error(data.message || "Something went wrong!");
-	}
-
-	return data;
-}
-
-
 function LoginForm() {
 	const router = useRouter();
+	const authContext = useContext(AuthContext);
+	const { isLoading, axiosRequest } = useHttpClient();
 	const {
 		register,
 		handleSubmit,
@@ -54,17 +40,24 @@ function LoginForm() {
 		event?.preventDefault();
 		try {
 			const result = await login(data.email, data.password);
-			console.log(result);
-		} catch (error) {
-			console.log(error);
-			router.replace("/profile");
+			authContext.login(result.data.token);
+			router.replace("/");
+		} catch (error: any) {
+			toast.error("Identifiants incorrectes");
 		}
 	};
+	async function login(email: string, password: string) {
+		return await axiosRequest("https://localhost:8000/api/login", {
+			data: { username: email, password },
+			method: "post",
+		});
+	}
 
 	return (
 		<AuthLayout authTitle="Connectez-vous">
 			<p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
-				Ou <ButtonLink link="/auth/register">Créez un compte</ButtonLink>
+				Ou{" "}
+				<ButtonLink link="/auth/register">Créez un compte</ButtonLink>
 			</p>
 			<form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
 				<div>
@@ -105,12 +98,17 @@ function LoginForm() {
 
 				<div className="flex justify-center">
 					<div className="text-sm">
-						<ButtonLink link="/auth/forget-password">Mot de passe oublié ?</ButtonLink>
+						<ButtonLink link="/auth/forget-password">
+							Mot de passe oublié ?
+						</ButtonLink>
 					</div>
 				</div>
 
 				<div>
-					<Button className="group relative w-full btn">
+					<Button
+						className="group relative w-full btn"
+						isLoading={isLoading}
+					>
 						<span>
 							<LockClosedIcon
 								className="h-5 w-5 text-green-100 group-hover:text-white mr-2"

@@ -1,58 +1,48 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useContext } from "react";
+import axios, { AxiosPromise } from "axios";
+import { AuthContext } from "../context/auth-context";
 
 export const useHttpClient = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [error, setError] = useState<string|null>();
-
+	const authContext = useContext(AuthContext);
 	const activeHttpRequests = useRef<AbortController[]>([]);
 
-	const sendRequest = useCallback(
-		async (url, method = "GET", body = null, headers = {}) => {
-			setIsLoading(true);
-			const httpAbortCtrl = new AbortController();
-			activeHttpRequests.current.push(httpAbortCtrl);
-
-			try {
-				const response = await fetch(url, {
-					method,
-					body,
-					headers,
-					signal: httpAbortCtrl.signal,
-				});
-
-				const responseData = await response.json();
-
-				activeHttpRequests.current = activeHttpRequests.current.filter(
-					(reqCtrl) => reqCtrl !== httpAbortCtrl
-				);
-
-				if (!response.ok) {
-					throw new Error(responseData.message);
-				}
-
-				setIsLoading(false);
-				return responseData;
-			} catch (err: any) {
-				setError(err.message);
-				setIsLoading(false);
-				throw err;
-			}
-		},
-		[]
-	);
-
-	const clearError = () => {
-		setError(null);
-	};
+	const axiosRequest = useCallback(async (url, config = {}) => {
+		setIsLoading(true);
+		const httpAbortCtrl = new AbortController();
+		activeHttpRequests.current.push(httpAbortCtrl);
+		
+		try {
+			const response: any = await axios(url, {
+				...config,
+				headers: {
+					...config.headers,
+					Accept: "application/ld+json",
+					...(authContext.token && {
+						Authorization: `Bearer ${authContext.token}`,
+					}),
+				},
+				signal: httpAbortCtrl.signal,
+			});
+			activeHttpRequests.current = activeHttpRequests.current.filter(
+				(reqCtrl) => reqCtrl !== httpAbortCtrl
+			);
+			// console.log(response);
+			setIsLoading(false);
+			return response;
+		} catch (error: any) {
+			setIsLoading(false);
+			throw error.response;
+		}
+	}, [authContext.token]);
 
 	useEffect(() => {
 		return () => {
-			// eslint-disable-next-line react-hooks/exhaustive-deps
 			activeHttpRequests.current.forEach((abortCtrl) =>
 				abortCtrl.abort()
 			);
 		};
 	}, []);
 
-	return { isLoading, error, sendRequest, clearError };
+	return { isLoading, axiosRequest };
 };

@@ -98,4 +98,4 @@ const Home: NextPage = () => {
 // 	};
 // };
 
-export default ProtectRoute(Home);
+export default ProtectRoute(Home,"ROLE_USER");

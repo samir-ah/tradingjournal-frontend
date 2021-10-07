@@ -88,10 +88,11 @@ function RegisterForm() {
 				data.password,
 				data.password_confirm
 			);
+			router.replace("/auth");
 			// console.log(result);
 		} catch (error) {
 			console.log(error);
-			router.replace("/profile");
+			
 		}
 	};
 
