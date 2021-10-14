@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { useForm, SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
@@ -7,12 +7,15 @@ import Button from "../ui/button";
 import ButtonLink from "../ui/button-link";
 import { useRouter } from "next/router";
 import AuthLayout from "../layout/auth-layout";
+import { useHttpClient } from "../../hooks/use-http";
+import { AuthContext } from "../../context/auth-context";
+import { toast } from "react-toastify";
 
 type Inputs = {
 	email: string;
 	username: string;
 	password: string;
-	password_confirm: string;
+	confirm_password: string;
 	rgpd: boolean;
 };
 
@@ -31,7 +34,7 @@ const schema = yup
 			.string()
 			.required("Entrez un mot de passe")
 			.min(6, "minimum 6 charactères"),
-		password_confirm: yup
+		confirm_password: yup
 			.string()
 			.oneOf(
 				[yup.ref("password"), null],
@@ -40,37 +43,19 @@ const schema = yup
 			.required(REQUIRED_FIELD_MESSAGE),
 		rgpd: yup
 			.boolean()
-			.oneOf([true], "Vous devez accepter nos conditions, en cochant cette case")
+			.oneOf(
+				[true],
+				"Vous devez accepter nos conditions, en cochant cette case"
+			)
 			.required(),
 	})
 	.required();
 
-async function registerUser(
-	email: string,
-	username: string,
-	password: string,
-	password_confirm: string
-) {
-	alert(JSON.stringify({ email, username, password, password_confirm }));
-	const response = await fetch("/api/register", {
-		method: "POST",
-		body: JSON.stringify({ email, username, password, password_confirm }),
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
 
-	const data = await response.json();
-
-	if (!response.ok) {
-		throw new Error(data.message || "Something went wrong!");
-	}
-
-	return data;
-}
 
 function RegisterForm() {
 	const router = useRouter();
+	const { isLoading, axiosRequest } = useHttpClient();
 	const {
 		register,
 		handleSubmit,
@@ -80,21 +65,30 @@ function RegisterForm() {
 	});
 	const onSubmit: SubmitHandler<Inputs> = async (data, event) => {
 		event?.preventDefault();
-		// alert(JSON.stringify(data))
 		try {
 			const result = await registerUser(
 				data.email,
 				data.username,
 				data.password,
-				data.password_confirm
+				data.confirm_password
 			);
+			toast.success("Votre compte a été crée");
 			router.replace("/auth");
-			// console.log(result);
-		} catch (error) {
-			console.log(error);
-			
+		} catch (error: any) {
+			toast.error(error.data.detail);
 		}
 	};
+	async function registerUser(
+		email: string,
+		username: string,
+		password: string,
+		confirm_password: string
+	) {
+		return await axiosRequest("/api/register", {
+			data: { email, username, password, confirm_password,rgpd: true },
+			method: "post",
+		});
+	}
 
 	return (
 		<AuthLayout authTitle="Inscrivez-vous">
@@ -150,20 +144,20 @@ function RegisterForm() {
 					<p className="text-sm text-red-500">
 						{errors.password?.message}
 					</p>
-					<label htmlFor="password_confirm" className="inputlabel">
+					<label htmlFor="confirm_password" className="inputlabel">
 						Confirmation du mot de passe
 					</label>
 					<input
-						id="password_confirm"
+						id="confirm_password"
 						type="password"
 						className={`w-full textinput ${
-							errors.password_confirm && "border-red-500"
+							errors.confirm_password && "border-red-500"
 						}`}
 						placeholder="Password"
-						{...register("password_confirm")}
+						{...register("confirm_password")}
 					/>
 					<p className="text-sm text-red-500">
-						{errors.password_confirm?.message}
+						{errors.confirm_password?.message}
 					</p>
 				</div>
 				<div className="flex items-center">
@@ -184,7 +178,10 @@ function RegisterForm() {
 				<p className="text-sm text-red-500">{errors.rgpd?.message}</p>
 
 				<div>
-					<Button className="group relative w-full btn">
+					<Button
+						className="group relative w-full btn"
+						isLoading={isLoading}
+					>
 						<span>
 							<LockClosedIcon
 								className="h-5 w-5 text-green-100 group-hover:text-white mr-2"

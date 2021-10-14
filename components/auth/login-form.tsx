@@ -47,7 +47,7 @@ function LoginForm() {
 		}
 	};
 	async function login(email: string, password: string) {
-		return await axiosRequest("https://localhost:8000/api/login", {
+		return await axiosRequest("/api/login", {
 			data: { username: email, password },
 			method: "post",
 		});

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import { LockClosedIcon } from "@heroicons/react/solid";
 import { useForm, SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
@@ -7,138 +7,183 @@ import Button from "../ui/button";
 import ButtonLink from "../ui/button-link";
 import { useRouter } from "next/router";
 import AuthLayout from "../layout/auth-layout";
+import { useHttpClient } from "../../hooks/use-http";
+import { toast } from "react-toastify";
 
-type Inputs = {
+const REQUIRED_FIELD_MESSAGE = "Ce champ est nécessaire";
+type Input = {
 	email: string;
 	password: string;
+	password_confirm: string;
 };
-const schema = yup
+
+const emailSchema = yup
 	.object({
 		email: yup
 			.string()
 			.email("Entrez un email valide")
-			.required("Ce champ est nécessaire"),
-		password: yup.string().required("Entrez un mot de passe"),
+			.required(REQUIRED_FIELD_MESSAGE),
+	})
+	.required();
+const passwordSchema = yup
+	.object({
+		password: yup
+			.string()
+			.required("Entrez un mot de passe")
+			.min(6, "minimum 6 charactères"),
+		password_confirm: yup
+			.string()
+			.oneOf(
+				[yup.ref("password"), null],
+				"Les 2 mots de passe doivent correspondre"
+			)
+			.required(REQUIRED_FIELD_MESSAGE),
 	})
 	.required();
 
-async function login(email: string, password: string) {
-	const response = await fetch("/api/login", {
-		method: "POST",
-		body: JSON.stringify({ email, password }),
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
-
-	const data = await response.json();
-
-	if (!response.ok) {
-		throw new Error(data.message || "Something went wrong!");
-	}
-
-	return data;
-}
-// async function register(
-// 	email: string,
-// 	username: string,
-// 	password: string,
-// 	password_confirm: string
-// ) {
-// 	const response = await fetch("/api/login", {
-// 		method: "POST",
-// 		body: JSON.stringify({ email, username, password, password_confirm }),
-// 		headers: {
-// 			"Content-Type": "application/json",
-// 		},
-// 	});
-
-// 	const data = await response.json();
-
-// 	if (!response.ok) {
-// 		throw new Error(data.message || "Something went wrong!");
-// 	}
-
-// 	return data;
-// }
-
-function AuthForm() {
+type Props = {
+	resetToken?: string|string[];
+	children?: React.ReactNode;
+};
+function ForgetPasswordForm({ resetToken, children }: Props) {
 	const router = useRouter();
+	const { isLoading, axiosRequest } = useHttpClient();
+	
+	const onSubmitEmail: SubmitHandler<Input> = async (
+		data,
+		event
+	) => {
+		event?.preventDefault();
+		try {
+			const result = await requestPasswordReset(data.email);
+			toast.success("Un email vous a été envoyé si votre compte existe");
+			router.replace("/auth");
+		} catch (error: any) {
+			toast.error(error.data.detail);
+		}
+	};
+	const onSubmitPassword: SubmitHandler<Input> = async (
+		data,
+		event
+	) => {
+		event?.preventDefault();
+		try {
+			const result = await passwordReset(
+				data.password,
+				data.password_confirm
+			);
+			toast.success("Votre mot de passe a été réinitialisé, veuillez vous connecter");
+			router.replace("/auth");
+		} catch (error: any) {
+			console.log(data);
+			
+			toast.error(error);
+		}
+	};
+	const onSubmit = resetToken ? onSubmitPassword : onSubmitEmail;
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<Inputs>({
-		resolver: yupResolver(router? schema : schema),
+	} = useForm<any>({
+		resolver: yupResolver(resetToken ? passwordSchema : emailSchema),
 	});
-	const onSubmit: SubmitHandler<Inputs> = async (data, event) => {
-		event?.preventDefault();
-		try {
-			const result = await login(data.email, data.password);
-			console.log(result);
-		} catch (error) {
-			console.log(error);
-			router.replace("/profile");
-		}
-	};
+	
+	async function requestPasswordReset(
+		email: string,
+	) {
+		return await axiosRequest("/api/reset-password", {
+			data: { email },
+			method: "post",
+		});
+	}
+	async function passwordReset(password: string, password_confirm: string) {
+		return await axiosRequest(`/api/reset-password/reset/${resetToken}`, {
+			data: { password, password_confirm },
+			method: "post",
+		});
+	}
 
 	return (
-		<AuthLayout authTitle="Connectez-vous">
+		<AuthLayout authTitle="Inscrivez-vous">
 			<p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
-				Ou <ButtonLink link="">Créez un compte</ButtonLink>
+				Ou <ButtonLink link="/auth">Connectez-vous</ButtonLink>
 			</p>
 			<form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
 				<div>
-					<label htmlFor="email-address" className="sr-only">
-						Email address
-					</label>
-					<input
-						id="email-address"
-						type="email"
-						autoComplete="email"
-						className={`w-full textinput ${
-							errors.email && "border-red-500"
-						}`}
-						placeholder="Email address"
-						{...register("email")}
-					/>
-					<p className="text-sm text-red-500">
-						{errors.email?.message}
-					</p>
-
-					<label htmlFor="password" className="sr-only">
-						Password
-					</label>
-					<input
-						id="password"
-						type="password"
-						autoComplete="current-password"
-						className={`w-full textinput ${
-							errors.password && "border-red-500"
-						}`}
-						placeholder="Password"
-						{...register("password")}
-					/>
-					<p className="text-sm text-red-500">
-						{errors.password?.message}
-					</p>
-				</div>
-
-				<div className="flex justify-center">
-					<div className="text-sm">
-						<ButtonLink link="">Mot de passe oublié ?</ButtonLink>
-					</div>
+					{resetToken ? (
+						<>
+							<label htmlFor="password" className="inputlabel">
+								Mot de passe
+							</label>
+							<input
+								id="password"
+								type="password"
+								className={`w-full textinput ${
+									errors.password && "border-red-500"
+								}`}
+								placeholder="Password"
+								{...register("password")}
+							/>
+							<p className="text-sm text-red-500">
+								{errors.password?.message}
+							</p>
+							<label
+								htmlFor="password_confirm"
+								className="inputlabel"
+							>
+								Confirmation du mot de passe
+							</label>
+							<input
+								id="password_confirm"
+								type="password"
+								className={`w-full textinput ${
+									errors.password_confirm && "border-red-500"
+								}`}
+								placeholder="Password"
+								{...register("password_confirm")}
+							/>
+							<p className="text-sm text-red-500">
+								{errors.password_confirm?.message}
+							</p>
+						</>
+					) : (
+						<>
+							<label
+								htmlFor="email-address"
+								className="inputlabel"
+							>
+								Adresse email
+							</label>
+							<input
+								id="email-address"
+								type="email"
+								autoComplete="email"
+								className={`w-full textinput ${
+									errors.email && "border-red-500"
+								}`}
+								placeholder="Email address"
+								{...register("email")}
+							/>
+							<p className="text-sm text-red-500">
+								{errors.email?.message}
+							</p>
+						</>
+					)}
 				</div>
 
 				<div>
-					<Button className="group relative w-full btn">
+					<Button
+						className="group relative w-full btn"
+						isLoading={isLoading}
+					>
 						<span>
 							<LockClosedIcon
 								className="h-5 w-5 text-green-100 group-hover:text-white mr-2"
 								aria-hidden="true"
 							/>
 						</span>
-						Se connecter
+						Envoyer
 					</Button>
 				</div>
 			</form>
@@ -146,4 +191,4 @@ function AuthForm() {
 	);
 }
 
-export default AuthForm;
+export default ForgetPasswordForm;
