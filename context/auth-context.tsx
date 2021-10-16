@@ -3,6 +3,7 @@ import jwtDecode from "jwt-decode";
 import { useRouter } from "next/router";
 import { NextPage } from "next";
 import LoadingPage from "../components/ui/loading-page";
+import MainLayout from "../components/layout/main-layout";
 
 let logoutTimer: number;
 type AuthContextObj = {
@@ -28,7 +29,7 @@ const calculateRemainingTime = (expirationTime: number | null | undefined) => {
 	}
 	const currentTime = new Date().getTime() / 1000;
 	const adjExpirationTime = expirationTime;
-	const remainingDuration = adjExpirationTime - currentTime;
+	const remainingDuration = (adjExpirationTime - currentTime) * 1000;
 	return remainingDuration;
 };
 
@@ -109,7 +110,7 @@ export const ProtectRoute: ProtectRouteFn = (Component, userRoles) => {
 		const router = useRouter();
 		if (authContext.isLoading) {
 			return <LoadingPage></LoadingPage>;
-		}		
+		}
 		if (
 			!authContext.isLoggedIn ||
 			(authContext.isLoggedIn &&
@@ -120,7 +121,9 @@ export const ProtectRoute: ProtectRouteFn = (Component, userRoles) => {
 			return <LoadingPage />;
 		}
 
-		return <Component {...pageProps} />;
+		return (
+				<Component {...pageProps} />
+		);
 	};
 
 	return Authenticated;

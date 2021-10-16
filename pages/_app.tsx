@@ -1,10 +1,10 @@
 import "../styles/globals.css";
 import "react-toastify/dist/ReactToastify.min.css";
 import type { AppProps } from "next/app";
-import AuthContextProvider from "../context/auth-context";
+import AuthContextProvider, { AuthContext } from "../context/auth-context";
 import Head from "next/head";
 import { ToastContainer } from "react-toastify";
-
+import MainLayout from "../components/layout/main-layout";
 
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
@@ -24,12 +24,14 @@ function MyApp({ Component, pageProps }: AppProps) {
 				newestOnTop={false}
 				closeOnClick
 				rtl={false}
-				theme='dark'
+				theme="dark"
 				pauseOnFocusLoss
 				draggable
 				pauseOnHover
 			/>
-			<Component {...pageProps} />
+			<MainLayout>
+				<Component {...pageProps} />
+			</MainLayout>
 		</AuthContextProvider>
 	);
 }
