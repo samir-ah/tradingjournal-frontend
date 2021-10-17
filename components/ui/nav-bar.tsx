@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import { AuthContext } from "../../context/auth-context";
+import ThemeToggle from "./theme-toggle";
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ");
@@ -21,11 +22,15 @@ export default function Navbar() {
 	const router = useRouter();
 
 	const navigation = [
-		{ name: "Tableau de bord", href: "/" },
-		{ name: "Mes trades", href: "/my-trades" },
+		{ name: "Tableau de bord", href: "/", activePaths: [] },
+		{
+			name: "Mes trades",
+			href: "/trades/my-trades",
+			activePaths: ["/trades/new-trade"],
+		},
 		{ name: "Trades partagés", href: "#" },
 		{ name: "Trades favoris", href: "#" },
-		{ name: "Suivi de performances", href: "#" },
+		{ name: "Performances", href: "#" },
 	];
 	const userNavigation = [
 		{ name: "Paramètres", href: "#" },
@@ -68,7 +73,10 @@ export default function Navbar() {
 												<a
 													className={classNames(
 														router.pathname ==
-															item.href
+															item.href ||
+															item.activePaths?.includes(
+																router.pathname
+															)
 															? "bg-gray-900 text-white"
 															: "text-gray-300 hover:bg-gray-700 hover:text-white",
 														"px-3 py-2 rounded-md text-sm font-medium"
@@ -81,74 +89,93 @@ export default function Navbar() {
 									</div>
 								</div>
 							</div>
-							<div className="hidden md:block">
-								<div className="ml-4 flex items-center md:ml-6">
-									{/* Profile dropdown */}
-									<Menu as="div" className="ml-3 relative">
-										<div>
-											<Menu.Button className="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-												<span className="sr-only">
-													Open user menu
-												</span>
-												<UserIcon
-													className="h-6 w-6"
-													aria-hidden="true"
-												/>
-											</Menu.Button>
-										</div>
-										<Transition
-											as={Fragment}
-											enter="transition ease-out duration-100"
-											enterFrom="transform opacity-0 scale-95"
-											enterTo="transform opacity-100 scale-100"
-											leave="transition ease-in duration-75"
-											leaveFrom="transform opacity-100 scale-100"
-											leaveTo="transform opacity-0 scale-95"
-										>
-											<Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none">
-												{userNavigation.map((item) => (
-													<Menu.Item key={item.name}>
-														{({ active }) => (
-															<Link
-																href={item.href}
-															>
-																<a
-																	onClick={
-																		item.onclick
-																	}
-																	className={classNames(
-																		"block px-4 py-2 text-sm text-gray-800 dark:text-gray-50 hover:bg-gray-100  dark:hover:bg-gray-600"
-																	)}
-																>
-																	{item.name}
-																</a>
-															</Link>
-														)}
-													</Menu.Item>
-												))}
-											</Menu.Items>
-										</Transition>
-									</Menu>
+
+							<div className="-mr-2 flex justify-end">
+								<div className=" align-middle group hover:bg-gray-700  p-2 rounded-md">
+									<ThemeToggle />
 								</div>
-							</div>
-							<div className="-mr-2 flex md:hidden">
-								{/* Mobile menu button */}
-								<Disclosure.Button className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-									<span className="sr-only">
-										Open main menu
-									</span>
-									{open ? (
-										<XIcon
-											className="block h-6 w-6"
-											aria-hidden="true"
-										/>
-									) : (
-										<MenuIcon
-											className="block h-6 w-6"
-											aria-hidden="true"
-										/>
-									)}
-								</Disclosure.Button>
+								<div className="hidden md:block">
+									<div className=" flex items-center ">
+										{/* Profile dropdown */}
+										<Menu
+											as="div"
+											className="ml-3 relative"
+										>
+											<div>
+												<Menu.Button className="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+													<span className="sr-only">
+														Open user menu
+													</span>
+													<UserIcon
+														className="h-6 w-6"
+														aria-hidden="true"
+													/>
+												</Menu.Button>
+											</div>
+											<Transition
+												as={Fragment}
+												enter="transition ease-out duration-100"
+												enterFrom="transform opacity-0 scale-95"
+												enterTo="transform opacity-100 scale-100"
+												leave="transition ease-in duration-75"
+												leaveFrom="transform opacity-100 scale-100"
+												leaveTo="transform opacity-0 scale-95"
+											>
+												<Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none">
+													{userNavigation.map(
+														(item) => (
+															<Menu.Item
+																key={item.name}
+															>
+																{({
+																	active,
+																}) => (
+																	<Link
+																		href={
+																			item.href
+																		}
+																	>
+																		<a
+																			onClick={
+																				item.onclick
+																			}
+																			className={classNames(
+																				"block px-4 py-2 text-sm text-gray-800 dark:text-gray-50 hover:bg-gray-100  dark:hover:bg-gray-600"
+																			)}
+																		>
+																			{
+																				item.name
+																			}
+																		</a>
+																	</Link>
+																)}
+															</Menu.Item>
+														)
+													)}
+												</Menu.Items>
+											</Transition>
+										</Menu>
+									</div>
+								</div>
+								<div className="md:hidden">
+									{/* Mobile menu button */}
+									<Disclosure.Button className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+										<span className="sr-only">
+											Open main menu
+										</span>
+										{open ? (
+											<XIcon
+												className="block h-6 w-6"
+												aria-hidden="true"
+											/>
+										) : (
+											<MenuIcon
+												className="block h-6 w-6"
+												aria-hidden="true"
+											/>
+										)}
+									</Disclosure.Button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -162,7 +189,10 @@ export default function Navbar() {
 											close();
 										}}
 										className={classNames(
-											router.pathname == item.href
+											router.pathname == item.href ||
+												item.activePaths?.includes(
+													router.pathname
+												)
 												? "bg-gray-900 text-white"
 												: "text-gray-300 hover:bg-gray-700 hover:text-white",
 											"block px-3 py-2 rounded-md text-base font-medium"
@@ -175,7 +205,7 @@ export default function Navbar() {
 						</div>
 						<div className="pt-4 pb-3 border-t border-gray-700">
 							<div className="flex items-center px-5">
-								<div className="flex-shrink-0">
+								<div className="flex-shrink-0 text-gray-400">
 									<UserIcon
 										className="h-6 w-6"
 										aria-hidden="true"

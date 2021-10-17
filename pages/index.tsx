@@ -1,15 +1,14 @@
 import type { GetStaticProps, NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-import Navbar from "../components/ui/nav-bar";
+import { Player } from "@lottiefiles/react-lottie-player";
 import {ProtectRoute } from "../context/auth-context";
+import { useRef } from "react";
+import ComingSoonAnimation from "../components/lottie-animations/cooming-soon";
 
 
 // const Home: NextPage<{ protected: boolean; userRoles: string[] }> = (props) => {
 const Home: NextPage = () => {
-	
 	return (
-	<div className="text-white">Hello</div>
+		<ComingSoonAnimation></ComingSoonAnimation>
 	);
 };
 
