@@ -1,1 +1,2 @@
-export const myLoader = ({ src }: { src: string }) => `${src}`;
+export const myLoader = ({ src, width, quality }: any) =>
+	`${src}?w=${width}&q=${quality || 75}`;

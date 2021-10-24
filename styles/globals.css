@@ -3,16 +3,41 @@
 @tailwind utilities;
 
 @layer components {
-  .textinput {
-    @apply dark:bg-gray-700 dark:placeholder-gray-200 dark:text-white appearance-none border border-gray-300 rounded py-2 px-3 my-2 text-gray-700 ;
+	.textinput {
+		@apply dark:bg-gray-700 dark:placeholder-gray-200 dark:text-white appearance-none border border-gray-300 rounded py-2 px-3 my-2 text-gray-700;
+	}
+	.btn {
+		@apply flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:bg-opacity-50 disabled:hover:bg-opacity-50;
+	}
+	.btn-link {
+		@apply font-medium text-green-500 hover:text-green-700 cursor-pointer;
+	}
+	.inputlabel {
+		@apply block text-sm font-medium text-gray-700 dark:text-gray-50;
+	}
+	.input-datepicker__dark::-webkit-calendar-picker-indicator {
+	
+			filter: invert(1);
+	
+	}
+  .react-select .react-select__placeholder,
+  .react-select .react-select__input-container ,
+  .react-select .react-select__single-value {
+    @apply dark:text-gray-200
   }
-  .btn {
-      @apply flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700;
+  .react-select .react-select__control{
+    @apply mt-1 w-full bg-white dark:text-gray-200 dark:bg-gray-900 rounded-md shadow-sm sm:text-sm 
   }
-  .btn-link {
-      @apply font-medium text-green-500 hover:text-green-700;
+  .react-select .react-select__menu{
+    @apply  dark:text-gray-200 dark:bg-gray-900 
   }
-  .inputlabel{
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-50 ;
+  .react-select .react-select__option{
+    @apply  dark:text-gray-200 dark:bg-gray-900 dark:hover:bg-gray-700
+  }
+  .react-select .react-select__control--is-focused  {
+    @apply border-2
+  }
+  .react-select .react-select__input {
+    @apply border-none 
   }
 }

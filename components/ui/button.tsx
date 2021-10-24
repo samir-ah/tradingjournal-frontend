@@ -18,7 +18,7 @@ function Button({ link, className, onClick, children, isLoading }: Props) {
 	}
 
 	return (
-		<button className={`btn ${className || ""}`} onClick={onClick}>
+		<button className={`btn ${className || ""}`} onClick={onClick} disabled={isLoading}>
 			{children}
 			{isLoading ? <span><LoadingBtn/></span> : ""}	
 		</button>

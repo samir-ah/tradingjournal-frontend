@@ -6,7 +6,7 @@ const ThemeToggle = () => {
 	const { theme, setTheme } = React.useContext(ThemeContext);
 
 	return (
-		<div className="transition duration-500 ease-in-out rounded-full">
+		<div className="transition duration- ease-in-out rounded-full">
 			{theme === Theme.DARK ? (
 				<SunIcon
 					onClick={() => setTheme(Theme.LIGHT)}
