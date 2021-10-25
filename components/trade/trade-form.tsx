@@ -9,9 +9,11 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useRouter } from "next/router";
 import { useHttpClient } from "../../hooks/use-http";
 import { toast } from "react-toastify";
-import { format } from "date-fns";
+import { format,parse } from "date-fns";
 import ImageInput from "../ui/image-input";
 import ImagesList from "./tradeimage-list";
+import { string } from "yup/lib/locale";
+import React from "react";
 
 type Inputs = {
 	startAt: string;
@@ -30,12 +32,34 @@ const TradeForm: React.FC<{ trade?: any }> = (props) => {
 	const router = useRouter();
 	const { isLoading, axiosRequest } = useHttpClient();
 	const [imageFile, setImageFile] = useState<File | string | null>(null);
-
 	const { register, control, handleSubmit, setValue } = useForm<Inputs>({
 		defaultValues: {
-			isPublished: true,
-			finalRatio: 0,
-			tradeInstrument: instrumetOptions[0],
+			startAt: props.trade?.startAt
+				? format(
+						parse(
+							props.trade.startAt,
+							"dd/MM/yyyy HH:mm",
+							new Date()
+						),
+						"yyyy-MM-dd'T'HH:mm"
+				  )
+				: "",
+			endAt: props.trade?.endAt
+				? format(
+						parse(
+							props.trade.endAt,
+							"dd/MM/yyyy HH:mm",
+							new Date()
+						),
+						"yyyy-MM-dd'T'HH:mm"
+				  )
+				: "",
+			reasons: props.trade?.reasons || "",
+			outcome: props.trade?.outcome || "",
+			lesson: props.trade?.lesson || "",
+			finalRatio: props.trade?.finalRatio || 0,
+			isGood: props.trade?.isGood || false,
+			isPublished: props.trade?.isPublished || true,
 		},
 	});
 	useEffect(() => {
@@ -51,29 +75,30 @@ const TradeForm: React.FC<{ trade?: any }> = (props) => {
 					}
 				);
 
-				setValue("tradeInstrument", instrumetOptions[0], {
-					shouldValidate: true,
-				});
+				setValue(
+					"tradeInstrument",
+					props.trade?.tradeInstrument?.id
+						? instrumetOptions[
+								instrumetOptions.findIndex(
+									(el) =>
+										el.value ==
+										props.trade?.tradeInstrument?.id
+								)
+						  ]
+						: instrumetOptions[0]
+				);
 			} catch (error: any) {
 				// toast.error(error.data.detail);
 			}
 		};
 		fetchInstruments();
-	}, [axiosRequest, setValue]);
+	}, [axiosRequest, props.trade?.tradeInstrument?.id, setValue]);
 	const onSubmit: SubmitHandler<Inputs> = async (data, event) => {
 		event?.preventDefault();
 		try {
-			const result = await postTrade(
-				data.startAt,
-				data.endAt,
-				data.reasons,
-				data.outcome,
-				data.lesson,
-				data.finalRatio.toString(),
-				data.tradeInstrument.value,
-				data.isGood,
-				data.isPublished
-			);
+			const result = await saveTrade({
+				...data	
+			},props.trade?.id || null);
 			// console.log(result.data.id);
 
 			if (imageFile) {
@@ -93,18 +118,26 @@ const TradeForm: React.FC<{ trade?: any }> = (props) => {
 			console.log(error);
 		}
 	};
-	async function postTrade(
-		startAt: string,
-		endAt: string,
-		reasons: string,
-		outcome: string,
-		lesson: string,
-		finalRatio: string,
-		tradeInstrument: string,
-		isGood: boolean,
-		isPublished: boolean
+	async function saveTrade(
+		{
+		startAt,
+		endAt,
+		reasons,
+		outcome,
+		lesson,
+		finalRatio,
+		tradeInstrument,
+		isGood,
+		isPublished}:Inputs,
+		tradeIdToUpdate?: number
 	) {
-		return await axiosRequest("/api/trades", {
+		const urlRequest = tradeIdToUpdate
+			? `/api/trades/${tradeIdToUpdate}`
+			: `/api/trades`;
+		const method = tradeIdToUpdate
+			? "put"
+			: "post";
+		return await axiosRequest(urlRequest, {
 			data: {
 				startAt: startAt
 					? format(new Date(startAt), "dd/MM/yyyy HH:mm")
@@ -115,12 +148,12 @@ const TradeForm: React.FC<{ trade?: any }> = (props) => {
 				reasons,
 				outcome,
 				lesson,
-				finalRatio,
-				tradeInstrument: `api/trade_instruments/${tradeInstrument}`,
+				finalRatio: finalRatio.toString(),
+				tradeInstrument: `api/trade_instruments/${tradeInstrument.value}`,
 				isGood,
 				isPublished,
 			},
-			method: "post",
+			method: method,
 		});
 	}
 	async function postTradeImage(tradeId: string, file: File | string) {
@@ -139,6 +172,7 @@ const TradeForm: React.FC<{ trade?: any }> = (props) => {
 			headers: { "Content-Type": "multipart/form-data" },
 		});
 	}
+	
 	function imageInputHandler(imageFile: File | string | null) {
 		setImageFile(imageFile);
 	}
@@ -360,4 +394,4 @@ const TradeForm: React.FC<{ trade?: any }> = (props) => {
 	);
 };
 
-export default TradeForm;
+export default React.memo(TradeForm);

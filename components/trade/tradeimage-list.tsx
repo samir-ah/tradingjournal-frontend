@@ -8,15 +8,31 @@ import { DOMAIN_URL } from "../../constants";
 import { myLoader } from "../../utils/imageLoader";
 import { Popup } from "../ui/popup";
 import { PopupContext } from "../../context/popup-context";
+import { useHttpClient } from "../../hooks/use-http";
 
 const ImagesList: React.FC<{
 	images: any[];
 }> = (props) => {
+	const { isLoading, axiosRequest } = useHttpClient();
 	const popupCtx = useContext(PopupContext);
 const [currentImages, seCurrentImages] = useState(props.images);
-	function onDeleteImageHandler(imageId: string) {
-       seCurrentImages((prevImages) => {
-			return prevImages.filter((image) => image.id !== imageId);
+	async function onDeleteImageHandler(imageId: string) {
+      
+			try {
+				const result = await deleteTradeImage(imageId);
+				 seCurrentImages((prevImages) => {
+						return prevImages.filter(
+							(image) => image.id !== imageId
+						);
+					});
+			} catch (error) {
+				
+			}
+		
+	}
+	async function deleteTradeImage(tradeImageId: string) {
+		return await axiosRequest(`/api/trade_images/${tradeImageId}`, {
+			method: "delete",
 		});
 	}
 
