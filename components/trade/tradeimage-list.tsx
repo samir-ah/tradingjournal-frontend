@@ -5,7 +5,7 @@ import Image from "next/image";
 import axios from "axios";
 import Fancybox from "../ui/fancybox";
 import { DOMAIN_URL } from "../../constants";
-import { myLoader } from "../../utils/imageLoader";
+import { myLoader } from "../../utils/utils";
 import { Popup } from "../ui/popup";
 import { PopupContext } from "../../context/popup-context";
 import { useHttpClient } from "../../hooks/use-http";
