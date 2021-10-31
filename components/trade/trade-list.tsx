@@ -100,7 +100,7 @@ const TradeItem: React.FC<{
 								? trade.finalRatio
 								: trade.finalRatio > 0.0
 								? "+" + trade.finalRatio
-								: "-" + trade.finalRatio}
+								: trade.finalRatio}
 							%
 						</span>
 					</div>
@@ -126,7 +126,7 @@ const TradeItem: React.FC<{
 					</span>
 				</div>
 				<div className="flex items-center justify-between text-gray-800 dark:text-gray-100">
-					{owner && (
+					{/* {owner && (
 						<div
 							className="cursor-pointer w-8 h-8 rounded-full bg-gray-100 text-gray-800 flex items-center justify-center "
 							onClick={() => {
@@ -143,8 +143,8 @@ const TradeItem: React.FC<{
 						>
 							<XIcon width={20} height={20} />
 						</div>
-					)}
-					<div className="inline-flex">
+					)} */}
+					
 						{owner && (
 							<div
 								className="cursor-pointer w-8 h-8 rounded-full bg-gray-100 text-gray-800 flex items-center justify-center mx-1"
@@ -163,7 +163,7 @@ const TradeItem: React.FC<{
 						>
 							<EyeIcon width={20} height={20} />
 						</div>
-					</div>
+					
 				</div>
 			</div>
 		</div>

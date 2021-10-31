@@ -17,8 +17,7 @@ import auth from "../auth";
 const MyTrades: NextPage = () => {
 	const [loadedTrades, setLoadedTrades] = useState<any[]>();
 	const router = useRouter();
-		const authCtx = useContext(AuthContext);
-
+	const authCtx = useContext(AuthContext);
 
 	const [currentPage, setCurrentPage] = useState(
 		parseInt(router.query.page?.toString() || "1") || 1
@@ -28,16 +27,17 @@ const MyTrades: NextPage = () => {
 	const { isLoading, axiosRequest } = useHttpClient();
 	const fetchTrades = useCallback(
 		async (selectedPage: number) => {
-
 			try {
 				const result = await axiosRequest(
 					`/api/trades?author=${authCtx.user.id}&page=${selectedPage}`
 				);
 
 				setLoadedTrades(result.data["hydra:member"]);
-				
-				
-				if ("hydra:view" in result.data && "hydra:last" in result.data["hydra:view"]) {
+
+				if (
+					"hydra:view" in result.data &&
+					"hydra:last" in result.data["hydra:view"]
+				) {
 					const hydraView = result.data["hydra:view"];
 					const lastPageParam = getParamFromURLPath(
 						"page",
@@ -47,7 +47,6 @@ const MyTrades: NextPage = () => {
 				} else {
 					setLastPage(1);
 				}
-				
 			} catch (error: any) {
 				// toast.error(error.data.detail);
 			}

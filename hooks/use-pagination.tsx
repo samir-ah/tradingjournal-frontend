@@ -1,13 +1,11 @@
 import React from "react";
 import { useMemo } from "react";
+import { range } from "../utils/utils";
 
 
 export const DOTS = "...";
 
-const range = (start: number, end: number):number[] => {
-	let length = end - start + 1;
-	return Array.from({ length }, (_, idx) => idx + start);
-};
+
 type PaginationTypes = {
 	lastPage: number;
 	currentPage: number;

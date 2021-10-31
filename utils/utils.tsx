@@ -9,3 +9,7 @@ export const limitStr= (text:string, count:number, insertDots:boolean = true) =>
 		text.slice(0, count) + (text.length > count && insertDots ? "..." : "")
 	);
 }
+export const range = (start: number, end: number): number[] => {
+	let length = end - start + 1;
+	return Array.from({ length }, (_, idx) => idx + start);
+};

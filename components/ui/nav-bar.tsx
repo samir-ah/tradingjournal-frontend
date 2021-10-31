@@ -22,15 +22,15 @@ export default function Navbar() {
 	const router = useRouter();
 
 	const navigation = [
-		{ name: "Tableau de bord", href: "/", activePaths: [] },
+		// { name: "Tableau de bord", href: "/", activePaths: [] },
 		{
 			name: "Mes trades",
 			href: "/trades/my-trades",
-			activePaths: ["/trades/new-trade"],
+			activePaths: ["/trades/new-trade","/"],
 		},
 		{ name: "Trades partagés", href: "/trades/shared-trades" },
 		{ name: "Trades favoris", href: "/trades/liked-trades" },
-		{ name: "Performances", href: "#" },
+		{ name: "Performances", href: "/trades/performance-board" },
 	];
 	const userNavigation = [
 		{ name: "Paramètres", href: "#" },
