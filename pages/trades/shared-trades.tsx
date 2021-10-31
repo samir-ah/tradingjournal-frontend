@@ -14,7 +14,7 @@ import { useHttpClient } from "../../hooks/use-http";
 import { getParamFromURLPath } from "../../utils/utils";
 import auth from "../auth";
 
-const MyTrades: NextPage = () => {
+const SharedTrades: NextPage = () => {
 	const [loadedTrades, setLoadedTrades] = useState<any[]>();
 	const router = useRouter();
 		const authCtx = useContext(AuthContext);
@@ -31,7 +31,7 @@ const MyTrades: NextPage = () => {
 
 			try {
 				const result = await axiosRequest(
-					`/api/trades?author=${authCtx.user.id}&page=${selectedPage}`
+					`/api/trades?isPublished=1&page=${selectedPage}`
 				);
 
 				setLoadedTrades(result.data["hydra:member"]);
@@ -52,7 +52,7 @@ const MyTrades: NextPage = () => {
 				// toast.error(error.data.detail);
 			}
 		},
-		[authCtx.user.id, axiosRequest]
+		[axiosRequest]
 	);
 
 	useEffect(() => {
@@ -61,7 +61,7 @@ const MyTrades: NextPage = () => {
 
 	function onPageChangeHandler(page: number) {
 		setCurrentPage(page);
-		router.push(`/trades/my-trades?page=${page}`);
+		router.push(`/trades/shared-trades?page=${page}`);
 	}
 	async function onDeleteTradeHandler(tradeId: string) {
 		try {
@@ -83,15 +83,6 @@ const MyTrades: NextPage = () => {
 	}
 	return (
 		<div className="w-full">
-			<div className={`flex justify-end mx-3`}>
-				<Button
-					onClick={() => {
-						router.push("/trades/new-trade");
-					}}
-				>
-					Ajouter
-				</Button>
-			</div>
 			{(loadedTrades && loadedTrades.length > 0) || isLoading ? (
 				<div className="mx-auto container py-20 px-6">
 					{isLoading ? (
@@ -120,4 +111,4 @@ const MyTrades: NextPage = () => {
 		</div>
 	);
 };
-export default ProtectRoute(MyTrades, "ROLE_USER");
+export default ProtectRoute(SharedTrades, "ROLE_USER");

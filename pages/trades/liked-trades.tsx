@@ -14,11 +14,10 @@ import { useHttpClient } from "../../hooks/use-http";
 import { getParamFromURLPath } from "../../utils/utils";
 import auth from "../auth";
 
-const MyTrades: NextPage = () => {
+const LikedTrades: NextPage = () => {
 	const [loadedTrades, setLoadedTrades] = useState<any[]>();
 	const router = useRouter();
-		const authCtx = useContext(AuthContext);
-
+	const authCtx = useContext(AuthContext);
 
 	const [currentPage, setCurrentPage] = useState(
 		parseInt(router.query.page?.toString() || "1") || 1
@@ -28,16 +27,22 @@ const MyTrades: NextPage = () => {
 	const { isLoading, axiosRequest } = useHttpClient();
 	const fetchTrades = useCallback(
 		async (selectedPage: number) => {
-
 			try {
 				const result = await axiosRequest(
-					`/api/trades?author=${authCtx.user.id}&page=${selectedPage}`
+					`/api/trade_likes?page=${selectedPage}`
+				);
+				console.log(result.data["hydra:member"]);
+
+				setLoadedTrades(
+					result.data["hydra:member"].map(
+						(tradeLike: any) => tradeLike.trade
+					)
 				);
 
-				setLoadedTrades(result.data["hydra:member"]);
-				
-				
-				if ("hydra:view" in result.data && "hydra:last" in result.data["hydra:view"]) {
+				if (
+					"hydra:view" in result.data &&
+					"hydra:last" in result.data["hydra:view"]
+				) {
 					const hydraView = result.data["hydra:view"];
 					const lastPageParam = getParamFromURLPath(
 						"page",
@@ -47,12 +52,11 @@ const MyTrades: NextPage = () => {
 				} else {
 					setLastPage(1);
 				}
-				
 			} catch (error: any) {
 				// toast.error(error.data.detail);
 			}
 		},
-		[authCtx.user.id, axiosRequest]
+		[axiosRequest]
 	);
 
 	useEffect(() => {
@@ -61,7 +65,7 @@ const MyTrades: NextPage = () => {
 
 	function onPageChangeHandler(page: number) {
 		setCurrentPage(page);
-		router.push(`/trades/my-trades?page=${page}`);
+		router.push(`/trades/liked-trades?page=${page}`);
 	}
 	async function onDeleteTradeHandler(tradeId: string) {
 		try {
@@ -81,17 +85,14 @@ const MyTrades: NextPage = () => {
 			method: "delete",
 		});
 	}
+	function onDeleteLikeHandler(tradeId: string) {		
+		setLoadedTrades((prevTrades)=>{
+			return prevTrades?.filter((trade) => trade.id !== tradeId);
+		})
+	}
+	
 	return (
 		<div className="w-full">
-			<div className={`flex justify-end mx-3`}>
-				<Button
-					onClick={() => {
-						router.push("/trades/new-trade");
-					}}
-				>
-					Ajouter
-				</Button>
-			</div>
 			{(loadedTrades && loadedTrades.length > 0) || isLoading ? (
 				<div className="mx-auto container py-20 px-6">
 					{isLoading ? (
@@ -101,6 +102,7 @@ const MyTrades: NextPage = () => {
 							<TradeList
 								trades={loadedTrades}
 								onDeleteTrade={onDeleteTradeHandler}
+								onDeleteLikeTrade={onDeleteLikeHandler}
 							/>
 						)
 					)}
@@ -120,4 +122,4 @@ const MyTrades: NextPage = () => {
 		</div>
 	);
 };
-export default ProtectRoute(MyTrades, "ROLE_USER");
+export default ProtectRoute(LikedTrades, "ROLE_USER");

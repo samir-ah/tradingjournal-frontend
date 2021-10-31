@@ -28,8 +28,8 @@ export default function Navbar() {
 			href: "/trades/my-trades",
 			activePaths: ["/trades/new-trade"],
 		},
-		{ name: "Trades partagés", href: "#" },
-		{ name: "Trades favoris", href: "#" },
+		{ name: "Trades partagés", href: "/trades/shared-trades" },
+		{ name: "Trades favoris", href: "/trades/liked-trades" },
 		{ name: "Performances", href: "#" },
 	];
 	const userNavigation = [

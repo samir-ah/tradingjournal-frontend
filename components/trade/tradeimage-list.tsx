@@ -12,10 +12,11 @@ import { useHttpClient } from "../../hooks/use-http";
 
 const ImagesList: React.FC<{
 	images: any[];
-}> = (props) => {
+	edit?: boolean
+}> = ({images,edit = true}) => {
 	const { isLoading, axiosRequest } = useHttpClient();
 	const popupCtx = useContext(PopupContext);
-const [currentImages, seCurrentImages] = useState(props.images);
+const [currentImages, seCurrentImages] = useState(images);
 	async function onDeleteImageHandler(imageId: string) {
       
 			try {
@@ -39,9 +40,9 @@ const [currentImages, seCurrentImages] = useState(props.images);
 	return (
 		<>
 			<div className="w-full max-w-sm md:max-w-lg ">
-				<label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+				{edit && <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
 					Captures
-				</label>
+				</label>}
 				<div className="grid grid-rows-1 grid-flow-col gap-3 mt-1  overflow-x-auto w-full ">
 					<Fancybox>
 						{currentImages.map((image) => (
@@ -61,7 +62,7 @@ const [currentImages, seCurrentImages] = useState(props.images);
 									className="rounded-md cursor-pointer"
 								/>
 
-								<div className="flex justify-center">
+								{edit && <div className="flex justify-center">
 									<span
 										className="mx-auto h-10 w-10 text-gray-400 hover:text-red-500 "
 										onClick={() => {
@@ -79,7 +80,7 @@ const [currentImages, seCurrentImages] = useState(props.images);
 									>
 										<XCircleIcon></XCircleIcon>
 									</span>
-								</div>
+								</div>}
 							</div>
 						))}
 					</Fancybox>
