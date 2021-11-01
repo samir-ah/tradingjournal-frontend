@@ -58,7 +58,7 @@ async function deleteTrade(tradeId: string) {
 								? trade.finalRatio
 								: trade.finalRatio > 0.0
 								? "+" + trade.finalRatio
-								: "-" + trade.finalRatio}
+								: trade.finalRatio}
 							%
 						</span>
 					</div>

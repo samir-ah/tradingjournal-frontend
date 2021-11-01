@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useState } from "react";
+import { myLoader } from "../../utils/utils";
 import ButtonLink from "../ui/button-link";
 type Props = {
 	authTitle?: string;
@@ -11,6 +12,7 @@ function AuthLayout({ authTitle, children }: Props) {
 			<div className="max-w-md w-full space-y-8">
 				<div className="flex justify-center">
 					<Image
+						loader={myLoader}
 						src="/stock.png"
 						alt="Workflow"
 						width={65}

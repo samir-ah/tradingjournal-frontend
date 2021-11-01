@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/router";
 import { AuthContext } from "../../context/auth-context";
 import ThemeToggle from "./theme-toggle";
+import { myLoader } from "../../utils/utils";
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ");
@@ -56,6 +57,7 @@ export default function Navbar() {
 							<div className="flex items-center">
 								<div className="flex-shrink-0">
 									<Image
+										loader={myLoader}
 										className="h-8 w-8"
 										src="/stock.png"
 										alt="Workflow"
