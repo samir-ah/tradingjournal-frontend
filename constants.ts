@@ -1,1 +1,1 @@
-export const DOMAIN_URL = "https://localhost:8000/";
+export const DOMAIN_URL = "https://tradingjournal.solutionswebelegantes.fr/";

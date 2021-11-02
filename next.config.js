@@ -2,7 +2,7 @@
 module.exports = {
 	reactStrictMode: true,
 	images: {
-		domains: ['tailwindui.com','localhost'],
-		loader: 'custom'
+		domains: ["tailwindui.com", "localhost"],
+		loader: "custom",
 	},
 };

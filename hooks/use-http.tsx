@@ -23,7 +23,7 @@ export const useHttpClient = () => {
 					}),
 				},
 				signal: httpAbortCtrl.signal,
-				baseURL: "https://localhost:8000",
+				baseURL: "https://tradingjournal.solutionswebelegantes.fr",
 			});
 			activeHttpRequests.current = activeHttpRequests.current.filter(
 				(reqCtrl) => reqCtrl !== httpAbortCtrl
