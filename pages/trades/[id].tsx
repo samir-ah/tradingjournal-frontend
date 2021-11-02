@@ -1,4 +1,4 @@
-import type { GetStaticProps, NextPage } from "next";
+import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { LoadingIndicator } from "react-select/dist/declarations/src/components/indicators";
@@ -33,6 +33,14 @@ const ViewTradeDetail: NextPage = ({tradeId}:any) => {
 	);
 };
 export default ProtectRoute(ViewTradeDetail, "ROLE_USER");
+
+export const getStaticPaths: GetStaticPaths<{ id: string }> = async () => {
+	return {
+		paths: [], //indicates that no page needs be created at build time
+		fallback: "blocking", //indicates the type of fallback
+	};
+};
+
 export const getStaticProps: GetStaticProps = async (context) => {
 	return {
 		props: {
