@@ -12,7 +12,7 @@ export default ForgetPasswordPage;
 export const getStaticPaths: GetStaticPaths<{ uid: string }> = async () => {
 	return {
 		paths: [], //indicates that no page needs be created at build time
-		fallback: false, //indicates the type of fallback
+		fallback: true, //indicates the type of fallback
 	};
 };
 
