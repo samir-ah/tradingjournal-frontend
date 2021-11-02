@@ -7,11 +7,11 @@ import GridLoader from "../../components/ui/grid-content-loader";
 import { ProtectRoute } from "../../context/auth-context";
 import { useHttpClient } from "../../hooks/use-http";
 
-const ViewTradeDetail: NextPage = () => {
+const ViewTradeDetail: NextPage = ({tradeId}:any) => {
 	const [loadedTrade, setLoadedTrade] = useState();
 	const { isLoading, axiosRequest } = useHttpClient();
 	const router = useRouter();
-	const tradeId = router.query.id;
+	// const tradeId = router.query.id;
 	useEffect(() => {
 		if (tradeId) {
 			const fetchInstruments = async () => {
@@ -33,3 +33,10 @@ const ViewTradeDetail: NextPage = () => {
 	);
 };
 export default ProtectRoute(ViewTradeDetail, "ROLE_USER");
+export const getStaticProps: GetStaticProps = async (context) => {
+	return {
+		props: {
+			tradeId: context.params?.id,
+		},
+	};
+};
