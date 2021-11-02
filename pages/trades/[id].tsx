@@ -37,7 +37,7 @@ export default ProtectRoute(ViewTradeDetail, "ROLE_USER");
 export const getStaticPaths: GetStaticPaths<{ id: string }> = async () => {
 	return {
 		paths: [], //indicates that no page needs be created at build time
-		fallback: "blocking", //indicates the type of fallback
+		fallback: false, //indicates the type of fallback
 	};
 };
 
