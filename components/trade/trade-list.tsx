@@ -26,30 +26,30 @@ const TradeItem: React.FC<{
 }> = (props) => {
 	const { trade } = props;
 	const authCtx = useContext(AuthContext);
-    const [likedByMe, setLikedByMe] = useState(!!trade.likedByMe);
+	const [likedByMe, setLikedByMe] = useState(!!trade.likedByMe);
 	const router = useRouter();
 	const { isLoading, axiosRequest } = useHttpClient();
 	const popupCtx = useContext(PopupContext);
 	const owner = authCtx.user.id === parseInt(trade.author.id);
-    async function likeToggleHandler(trade:any){
-        
-        if(likedByMe){
-            try {
-                const result = await deleteLikeTrade(trade.id,authCtx.user.id)
-                 setLikedByMe((prev) => !prev);
-                 props.onDeleteLikeTrade && props.onDeleteLikeTrade(trade.id);
-            } catch (error) {
-                
-            }
-        }else{
-             try {
-					const result = await likeTrade(trade.id);
-					setLikedByMe((prev) => !prev);
-				} catch (error) {}
-        }
-       
-    }
-    async function deleteLikeTrade(tradeId: string, authorId: string) {
+	async function likeToggleHandler(trade: any) {
+		setLikedByMe((prev) => !prev);
+		if (likedByMe) {
+			try {
+				const result = await deleteLikeTrade(trade.id, authCtx.user.id);
+
+				props.onDeleteLikeTrade && props.onDeleteLikeTrade(trade.id);
+			} catch (error) {
+				setLikedByMe((prev) => !prev);
+			}
+		} else {
+			try {
+				const result = await likeTrade(trade.id);
+			} catch (error) {
+				setLikedByMe((prev) => !prev);
+			}
+		}
+	}
+	async function deleteLikeTrade(tradeId: string, authorId: string) {
 		return await axiosRequest(
 			`/api/trade_likes/trade=${tradeId};author=${authorId}`,
 			{
@@ -144,26 +144,25 @@ const TradeItem: React.FC<{
 							<XIcon width={20} height={20} />
 						</div>
 					)} */}
-					
-						{owner && (
-							<div
-								className="cursor-pointer w-8 h-8 rounded-full bg-gray-100 text-gray-800 flex items-center justify-center mx-1"
-								onClick={() => {
-									router.push(`/trades/edit/${trade.id}`);
-								}}
-							>
-								<PencilIcon width={20} height={20} />
-							</div>
-						)}
+
+					{owner && (
 						<div
-							className={`cursor-pointer w-8 h-8 rounded-full bg-gray-100 text-gray-800 flex items-center justify-center mx-1`}
+							className="cursor-pointer w-8 h-8 rounded-full bg-gray-100 text-gray-800 flex items-center justify-center mx-1"
 							onClick={() => {
-								router.push(`/trades/${trade.id}`);
+								router.push(`/trades/edit/${trade.id}`);
 							}}
 						>
-							<EyeIcon width={20} height={20} />
+							<PencilIcon width={20} height={20} />
 						</div>
-					
+					)}
+					<div
+						className={`cursor-pointer w-8 h-8 rounded-full bg-gray-100 text-gray-800 flex items-center justify-center mx-1`}
+						onClick={() => {
+							router.push(`/trades/${trade.id}`);
+						}}
+					>
+						<EyeIcon width={20} height={20} />
+					</div>
 				</div>
 			</div>
 		</div>
@@ -178,7 +177,6 @@ const TradeList: React.FC<{
 	return (
 		<div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 			{props.trades.map((trade) => {
-
 				return (
 					<TradeItem
 						key={trade.id}

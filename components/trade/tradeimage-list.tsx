@@ -58,7 +58,7 @@ const [currentImages, seCurrentImages] = useState(images);
 									height={140}
 									layout="responsive"
 									data-fancybox="gallery"
-									data-src={DOMAIN_URL + image.fileUrl}
+									// data-src={DOMAIN_URL + image.fileUrl}
 									className="rounded-md cursor-pointer"
 								/>
 

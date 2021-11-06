@@ -151,4 +151,4 @@ async function deleteTrade(tradeId: string) {
 		</div>
 	);
 };
-export default TradeDetail;
+export default React.memo(TradeDetail);

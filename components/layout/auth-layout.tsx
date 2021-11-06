@@ -8,7 +8,7 @@ type Props = {
 };
 function AuthLayout({ authTitle, children }: Props) {
 	return (
-		<div className="w-10/12 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+		<div className="w-10/12 min-h-screen flex items-center justify-center sm:py-6 lg:py-12 px-4 sm:px-6 lg:px-8">
 			<div className="max-w-md w-full space-y-8">
 				<div className="flex justify-center">
 					<Image
