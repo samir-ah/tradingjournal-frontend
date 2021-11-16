@@ -40,6 +40,7 @@ const PerformanceBoard: NextPage = () => {
 			totalRatio={performanceData?.totalPerformance || 0}
 			performanceByMonth={performanceData?.groupByMonth || []}
 			cumulativePerformance={performanceData?.byTradePerformance || []}
+			performanceByInstrument={performanceData?.groupByInstrument || []}
 		></PerformanceDetail>
 	);
 };

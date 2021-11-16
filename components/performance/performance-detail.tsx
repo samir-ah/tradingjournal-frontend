@@ -18,6 +18,7 @@ const PerformanceDetail: React.FC<{
 	totalRatio: number;
 	performanceByMonth: any[];
 	cumulativePerformance: any[];
+	performanceByInstrument: any[];
 }> = (props) => {
 	const authCtx = useContext(AuthContext);
 	const router = useRouter();
@@ -71,6 +72,15 @@ const PerformanceDetail: React.FC<{
 		barChartLabels.push(monthData.month + "/" + monthData.year);
 		barChartValues.push(parseFloat(monthData.ratio));
 	}
+	const barChartInstrumentLabels = [];
+	const barChartInstrumentValues = [];
+	for (let i = 0; i < props.performanceByInstrument.length; i++) {
+		const instrumentData = props.performanceByInstrument[i];
+		barChartInstrumentLabels.push(
+			instrumentData.name
+		);
+		barChartInstrumentValues.push(parseFloat(instrumentData.ratio));
+	}
 
 	const barChartData = {
 		labels: barChartLabels,
@@ -120,11 +130,59 @@ const PerformanceDetail: React.FC<{
 			},
 		},
 	};
+	const barChartInstrumentData = {
+		labels: barChartInstrumentLabels,
+		datasets: [
+			{
+				label: "Profit en %",
+				data: barChartInstrumentValues,
+				backgroundColor: [
+					"rgba(255, 99, 132, 1)",
+					"rgba(54, 162, 235, 1)",
+					"rgba(255, 206, 86, 1)",
+					"rgba(75, 192, 192, 1)",
+					"rgba(153, 102, 255, 1)",
+					"rgba(255, 159, 64, 1)",
+				],
+				borderColor: [
+					"rgba(255, 99, 132, 1)",
+					"rgba(54, 162, 235, 1)",
+					"rgba(255, 206, 86, 1)",
+					"rgba(75, 192, 192, 1)",
+					"rgba(153, 102, 255, 1)",
+					"rgba(255, 159, 64, 1)",
+				],
+				borderWidth: 1,
+			},
+		],
+	};
+
+	const barChartInstrumentOptions = {
+		elements: {
+			bar: {
+				borderWidth: 2,
+			},
+		},
+		responsive: true,
+		scales: {
+			y: {
+				beginAtZero: true,
+				grace: "5%",
+			},
+		},
+		plugins: {
+			legend: { display: false },
+			title: {
+				display: true,
+				text: "Performance mensuelle",
+			},
+		},
+	};
 
 	return (
 		<div className="w-full">
-			<div className="grid md:grid-cols-2 sm:grid-cols-1 gap-4 w-full px-4">
-				<div className="font-bold md:col-span-2 flex justify-around  bg-white text-gray-700 dark:bg-gray-700 dark:text-gray-100 shadow rounded-lg w-full md:max-w-lg mx-auto p-4">
+			<div className="grid md:grid-cols-2 sm:grid-cols-1 gap-4 w-full px-4 justify-center">
+				<div className="font-bold md:col-span-2 flex justify-around  bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-100 shadow rounded-lg w-full md:max-w-lg mx-auto p-4">
 					<div className="text-center">
 						<div className="text-2xl ">{props.totalRatio}%</div>
 						<div>
@@ -143,6 +201,9 @@ const PerformanceDetail: React.FC<{
 				</div>
 				<div className="bg-white dark:bg-gray-800 shadow rounded-lg w-full md:max-w-lg mx-auto p-4">
 					<Bar data={barChartData} options={barChartOptions} />
+				</div>
+				<div className="bg-white dark:bg-gray-800 shadow rounded-lg w-full md:max-w-lg mx-auto p-4">
+					<Bar data={barChartInstrumentData} options={barChartInstrumentOptions} />
 				</div>
 			</div>
 		</div>
