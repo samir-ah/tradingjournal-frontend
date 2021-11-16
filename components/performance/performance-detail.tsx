@@ -174,7 +174,7 @@ const PerformanceDetail: React.FC<{
 			legend: { display: false },
 			title: {
 				display: true,
-				text: "Performance mensuelle",
+				text: "Performance par paire",
 			},
 		},
 	};
